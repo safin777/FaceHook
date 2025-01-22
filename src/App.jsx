@@ -1,5 +1,10 @@
 import "./App.css";
 import { Routes, Route } from "react-router-dom";
+import HomePage from "./pages/HomePage";
+import LoginPage from "./pages/LoginPage";
+import ProfilePage from "./pages/ProfilePage";
+import RegistrationPage from "./pages/RegistrationPage";
+import NotFoundPage from "./pages/NotFoundPage";
 
 function App() {
   return (
