@@ -2,6 +2,7 @@ import Field from "../common/Field";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
+import axios from "axios";
 
 export default function LoginForm() {
   const navigate = useNavigate();
@@ -11,17 +12,33 @@ export default function LoginForm() {
     register,
     handleSubmit,
     formState: { errors },
+    setError,
   } = useForm();
 
-  const submitForm = (formdata) => {
-    console.log(formdata);
+  const submitForm = async (formdata) => {
+    //make an api call'
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_SERVER_BSSE_URL}/auth/login`,
+        formdata
+      );
 
-    //make an api call
-    // will return Tokens and Logged in user Informations
-
-    const user = { ...formdata };
-    setAuth({ user });
-    navigate("/");
+      if (response.status === 200) {
+        const { token, user } = response.data;
+        if (token) {
+          const authToken = token.token;
+          const refreshToken = token.refreshToken;
+          setAuth({ user, authToken, refreshToken });
+          navigate("/");
+        }
+      }
+    } catch (error) {
+      console.log(error);
+      setError("root.random", {
+        type: "random",
+        message: `User with Email ${formdata.email} is not found`,
+      });
+    }
   };
 
   return (
@@ -58,7 +75,7 @@ export default function LoginForm() {
           })}
         />
       </Field>
-
+      <p>{errors?.root?.random?.message}</p>
       <Field>
         <button
           className="font-bold transition-all auth-input bg-lwsGreen text-deepDark hover:opacity-90"
