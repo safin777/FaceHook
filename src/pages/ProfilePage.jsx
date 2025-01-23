@@ -17,7 +17,7 @@ export default function ProfilePage() {
     const fetchProfile = async () => {
       try {
         const response = await api.get(
-          `${import.meta.env.VITE_SERVER_BSSE_URL}/profile/${auth?.user?.id}`
+          `${import.meta.env.VITE_SERVER_BASE_URL}/profile/${auth?.user?.id}`
         );
         setUser(response?.data.user);
         setPost(response?.data.posts);

@@ -19,7 +19,7 @@ export default function LoginForm() {
     //make an api call'
     try {
       const response = await axios.post(
-        `${import.meta.env.VITE_SERVER_BSSE_URL}/auth/login`,
+        `${import.meta.env.VITE_SERVER_BASE_URL}/auth/login`,
         formdata
       );
 
