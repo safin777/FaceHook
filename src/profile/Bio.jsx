@@ -13,7 +13,7 @@ const Bio = () => {
 
   const handleBioEdit = async () => {
     dispatch({ type: actions.profile.DATA_FETCHING });
-    
+
     try {
       const response = await api.patch(
         `${import.meta.env.VITE_SERVER_BASE_URL}/profile/${state?.user?.id}`,
@@ -21,12 +21,17 @@ const Bio = () => {
       );
 
       if (response.status === 200) {
-        dispatch({ type: actions.profile.USER_DATA_EDITED, data: response.data });
+        dispatch({
+          type: actions.profile.USER_DATA_EDITED,
+          data: response.data,
+        });
       }
       setEditMode(false);
-      
     } catch (error) {
-      dispatch({ type: actions.profile.DATA_FETCH_ERROR, error: error.message });
+      dispatch({
+        type: actions.profile.DATA_FETCH_ERROR,
+        error: error.message,
+      });
     }
   };
 
