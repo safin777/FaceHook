@@ -24,6 +24,7 @@ const RegistrationForm = () => {
         navigate("/login");
       }
     } catch (error) {
+      console.log(error);
       setError("root.random", {
         type: "random",
         message: `Something went wrong. Please try again later`,
@@ -105,6 +106,3 @@ const RegistrationForm = () => {
 };
 
 export default RegistrationForm;
-
-
-
