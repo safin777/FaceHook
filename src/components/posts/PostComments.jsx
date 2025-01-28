@@ -11,7 +11,6 @@ const PostComments = ({ post }) => {
   const [comments, setComments] = useState(post?.comments);
   const [comment, setComment] = useState("");
   const { api } = useAxios();
-
   //toggle comment list
   const toggleAllComments = () => {
     setShowCommentList(!showCommentList);

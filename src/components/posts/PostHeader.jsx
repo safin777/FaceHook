@@ -5,10 +5,15 @@ import DeleteIcon from "../../assets/icons/delete.svg";
 import TimerIcon from "../../assets/icons/time.svg";
 import { getDateDifferenceFromNow } from "../../utils";
 import { useAvatar } from "../../hooks/useAvatar";
-import useProfile from "../../hooks/useProfile";
+import { useAuth } from "../../hooks/useAuth";
 
 const PostHeader = ({ post }) => {
   const [showActions, setShowActions] = useState(false);
+  const { auth } = useAuth();
+
+  const isMe = auth?.user?.id === post?.author?.id;
+  //checking if the author of the post is the same as the logged in user
+  //to toggle the action menu on the post
 
   const toggleAction = () => {
     setShowActions(!showActions);
@@ -36,9 +41,12 @@ const PostHeader = ({ post }) => {
       </div>
 
       <div className="relative">
-        <button onClick={toggleAction}>
-          <img src={ThreeDotsIcon} alt="3dots of Action" />
-        </button>
+        {isMe && (
+          <button onClick={toggleAction}>
+            <img src={ThreeDotsIcon} alt="3dots of Action" />
+          </button>
+        )}
+
         {showActions && (
           <div className="action-modal-container">
             <button className="action-menu-item hover:text-lwsGreen">
