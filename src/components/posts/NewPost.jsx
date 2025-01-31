@@ -1,9 +1,12 @@
 import { useAuth } from "../../hooks/useAuth";
+import useProfile from "../../hooks/useProfile";
 import { useState } from "react";
 import PostEntry from "./PostEntry";
 
 const NewPost = () => {
   const { auth } = useAuth();
+  const { state } = useProfile();
+  const avatar = state?.user?.avatar ?? auth?.user?.avatar;
   const [showPostEntry, setShowPostEntry] = useState(false);
 
   return (
@@ -15,9 +18,7 @@ const NewPost = () => {
           <div className="gap-2 mb-3 flex-center lg:gap-4">
             <img
               className="max-w-10 max-h-10 rounded-full lg:max-h-[58px] lg:max-w-[58px]"
-              src={`${import.meta.env.VITE_SERVER_BASE_URL}/${
-                auth?.user?.avatar
-              }`}
+              src={`${import.meta.env.VITE_SERVER_BASE_URL}/${avatar}`}
             />
 
             <div className="flex-1">

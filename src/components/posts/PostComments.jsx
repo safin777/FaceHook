@@ -2,9 +2,13 @@ import PostCommentList from "./PostCommentList";
 import { useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { useAxios } from "../../hooks/useAxios";
+import useProfile from "../../hooks/useProfile";
 
 const PostComments = ({ post }) => {
   const { auth } = useAuth();
+  const { state } = useProfile();
+
+  const avatar = state?.user?.avatar ?? auth?.user?.avatar;
 
   //state handling
   const [showCommentList, setShowCommentList] = useState(false);
@@ -43,7 +47,7 @@ const PostComments = ({ post }) => {
       <div className="gap-2 mb-3 flex-center lg:gap-4">
         <img
           className="max-w-7 max-h-7 rounded-full lg:max-h-[34px] lg:max-w-[34px]"
-          src={`${import.meta.env.VITE_SERVER_BASE_URL}/${auth?.user?.avatar}`}
+          src={`${import.meta.env.VITE_SERVER_BASE_URL}/${avatar}`}
           alt="avatar"
         />
 

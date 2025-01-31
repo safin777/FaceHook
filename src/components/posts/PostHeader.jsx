@@ -11,8 +11,9 @@ import { useAuth } from "../../hooks/useAuth";
 import { actions } from "../../actions/index";
 import { usePost } from "../../hooks/usePost";
 import { useAxios } from "../../hooks/useAxios";
+3;
 
-const PostHeader = ({ post }) => {
+const PostHeader = ({ post,onEdit }) => {
   const { dispatch } = usePost();
   const { api } = useAxios();
   const [showActions, setShowActions] = useState(false);
@@ -25,6 +26,10 @@ const PostHeader = ({ post }) => {
 
   const toggleAction = () => {
     setShowActions(!showActions);
+  };
+
+  const handleEdit = async (e) => {
+    onEdit()
   };
 
   const handleDelete = async (event) => {
@@ -54,7 +59,7 @@ const PostHeader = ({ post }) => {
           <div className="flex items-center gap-1.5">
             <img src={TimerIcon} alt="time" />
             <span className="text-sm text-gray-400 lg:text-base">
-              {`${getDateDifferenceFromNow(post?.createAt)} ago`}
+              {`${getDateDifferenceFromNow(post?.createAt)}`}
             </span>
           </div>
         </div>
@@ -69,7 +74,10 @@ const PostHeader = ({ post }) => {
 
         {showActions && (
           <div className="action-modal-container">
-            <button className="action-menu-item hover:text-lwsGreen">
+            <button
+              className="action-menu-item hover:text-lwsGreen"
+              onClick={handleEdit}
+            >
               <img src={EditIcon} alt="Edit" />
               Edit
             </button>
