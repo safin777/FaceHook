@@ -39,6 +39,14 @@ const postReducer = (state, action) => {
       };
     }
 
+    case actions.post.POST_DELETED: {
+      return {
+        ...state,
+        loading: false,
+        posts: state.posts.filter((post) => post.id !== action.data),
+      };
+    }
+
     default: {
       return state;
     }

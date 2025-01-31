@@ -6,30 +6,52 @@ import { usePost } from "../../hooks/usePost";
 import Field from "../common/Field";
 import useProfile from "../../hooks/useProfile";
 import AddIcon from "../../assets/icons/addPhoto.svg";
+import { useState } from "react";
 
-const PostEntry = ({ onCreate }) => {
+const PostEntry = ({ onCreate, isEdit }) => {
   const { auth } = useAuth();
   const { dispatch } = usePost();
   const { api } = useAxios();
   const { state: profile } = useProfile();
-
+  const [postImage, setPostImage] = useState(null);
   const user = profile?.user ?? auth?.user;
 
-  //necessary methoids from react-hook-form
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setError,
+  } = useForm();
 
   const handlePostSubmit = async (formData) => {
     dispatch({ type: actions.post.DATA_FETCHING });
+
     try {
+      // Create a new FormData instance
+      const postFormData = new FormData();
+      // Append the content from the form
+      postFormData.append("content", formData.content);
+
+      // Append the image if it exists
+      if (postImage) {
+        postFormData.append("image", postImage);
+      }
+
       const response = await api.post(
         `${import.meta.env.VITE_SERVER_BASE_URL}/posts`,
-        { formData }
+        postFormData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
       );
+
       if (response.status === 200) {
         dispatch({
           type: actions.post.DATA_CREATED,
           data: response.data,
         });
-        //close the PostEntry UI
         onCreate();
       }
     } catch (error) {
@@ -41,17 +63,17 @@ const PostEntry = ({ onCreate }) => {
     }
   };
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    setError,
-  } = useForm();
+  const handlePostImage = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setPostImage(file);
+    }
+  };
 
   return (
     <div className="relative card">
       <h6 className="mb-3 text-lg font-bold text-center lg:text-xl">
-        Create Post
+        {isEdit ? "Edit Post" : "Create Post"}
       </h6>
       <form onSubmit={handleSubmit(handlePostSubmit)}>
         <div className="flex items-center justify-between gap-2 mb-3 lg:mb-6 lg:gap-4">
@@ -65,7 +87,6 @@ const PostEntry = ({ onCreate }) => {
               <h6 className="text-lg lg:text-xl">
                 {user?.firstName} {user?.lastName}
               </h6>
-
               <span className="text-sm text-gray-400 lg:text-base">Public</span>
             </div>
           </div>
@@ -77,10 +98,17 @@ const PostEntry = ({ onCreate }) => {
             <img src={AddIcon} alt="Add Photo" />
             Add Photo
           </label>
-          <input type="file" name="photo" id="photo" className="hidden" />
+          <input
+            {...register("image")}
+            type="file"
+            name="image"
+            id="photo"
+            className="hidden"
+            onChange={handlePostImage}
+          />
         </div>
 
-        {/* React hook form for text area */}
+        {postImage && <img src={URL.createObjectURL(postImage)} alt="post" />}
 
         <Field label="" error={errors.content}>
           <textarea
@@ -97,8 +125,19 @@ const PostEntry = ({ onCreate }) => {
             className="font-bold transition-all auth-input bg-lwsGreen text-deepDark hover:opacity-90"
             type="submit"
           >
-            Post
+            {isEdit ? "Update" : "Post"}
           </button>
+
+          {isEdit ? (
+            <button
+              className="my-2 font-bold transition-all bg-red-400 auth-input text-deepDark hover:opacity-90"
+              type="button"
+            >
+              Discard
+            </button>
+          ) : (
+            ""
+          )}
         </div>
       </form>
     </div>
