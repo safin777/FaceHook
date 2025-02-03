@@ -6,9 +6,9 @@ import { usePost } from "../../hooks/usePost";
 import Field from "../common/Field";
 import useProfile from "../../hooks/useProfile";
 import AddIcon from "../../assets/icons/addPhoto.svg";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-const PostEntry = ({ onCreate, isEdit }) => {
+const PostEntry = ({ onCreate, isEdit, onDiscard, post }) => {
   const { auth } = useAuth();
   const { dispatch } = usePost();
   const { api } = useAxios();
@@ -16,43 +16,79 @@ const PostEntry = ({ onCreate, isEdit }) => {
   const [postImage, setPostImage] = useState(null);
   const user = profile?.user ?? auth?.user;
 
+  const [editImage, setEditImage] = useState(post?.image);
+
   const {
     register,
     handleSubmit,
     formState: { errors },
-    setError,
-  } = useForm();
+    setValue,
+  } = useForm({
+    defaultValues: {
+      content: post?.content || "",
+    },
+  });
+
+  // Pre-fill form when editing
+  useEffect(() => {
+    if (isEdit && post) {
+      setValue("content", post.content);
+      setEditImage(post.image);
+    }
+  }, [isEdit, post, setValue]);
 
   const handlePostSubmit = async (formData) => {
     dispatch({ type: actions.post.DATA_FETCHING });
 
     try {
-      // Create a new FormData instance
-      const postFormData = new FormData();
-      // Append the content from the form
-      postFormData.append("content", formData.content);
+      if (isEdit) {
+        const editFormData = new FormData();
+        editFormData.append("content", formData.content);
 
-      // Append the image if it exists
-      if (postImage) {
-        postFormData.append("image", postImage);
-      }
-
-      const response = await api.post(
-        `${import.meta.env.VITE_SERVER_BASE_URL}/posts`,
-        postFormData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+        // Only append new image if it exists
+        if (postImage) {
+          editFormData.append("image", postImage);
         }
-      );
 
-      if (response.status === 200) {
-        dispatch({
-          type: actions.post.DATA_CREATED,
-          data: response.data,
-        });
-        onCreate();
+        const response = await api.patch(
+          `${import.meta.env.VITE_SERVER_BASE_URL}/posts/${post.id}`,
+          editFormData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          dispatch({
+            type: actions.post.POST_EDITED,
+            data: response.data,
+          });
+          onDiscard(); // Close edit mode
+        }
+      } else {
+        const postFormData = new FormData();
+        postFormData.append("content", formData.content);
+        if (postImage) {
+          postFormData.append("image", postImage);
+        }
+        const response = await api.post(
+          `${import.meta.env.VITE_SERVER_BASE_URL}/posts`,
+          postFormData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+        if (response.status === 200) {
+          dispatch({
+            type: actions.post.DATA_CREATED,
+            data: response.data,
+          });
+          onCreate();
+        }
       }
     } catch (error) {
       console.log(error);
@@ -67,7 +103,12 @@ const PostEntry = ({ onCreate, isEdit }) => {
     const file = e.target.files[0];
     if (file) {
       setPostImage(file);
+      setEditImage(null);
     }
+  };
+
+  const handleDiscard = () => {
+    onDiscard();
   };
 
   return (
@@ -108,7 +149,16 @@ const PostEntry = ({ onCreate, isEdit }) => {
           />
         </div>
 
+        {/* Show new image if selected */}
         {postImage && <img src={URL.createObjectURL(postImage)} alt="post" />}
+
+        {/* Show existing image if in edit mode and no new image selected */}
+        {editImage && !postImage && (
+          <img
+            src={`${import.meta.env.VITE_SERVER_BASE_URL}/${editImage}`}
+            alt="post"
+          />
+        )}
 
         <Field label="" error={errors.content}>
           <textarea
@@ -128,15 +178,14 @@ const PostEntry = ({ onCreate, isEdit }) => {
             {isEdit ? "Update" : "Post"}
           </button>
 
-          {isEdit ? (
+          {isEdit && (
             <button
               className="my-2 font-bold transition-all bg-red-400 auth-input text-deepDark hover:opacity-90"
               type="button"
+              onClick={handleDiscard}
             >
               Discard
             </button>
-          ) : (
-            ""
           )}
         </div>
       </form>

@@ -11,14 +11,21 @@ const PostCard = ({ post }) => {
   const handleOnEdit = (e) => {
     setShowPostEdit(true);
   };
+
+  const handleDiscard = () => {
+    setShowPostEdit(false);
+  };
   return (
     <>
       {showPostEdit ? (
-        <PostEntry isEdit={showPostEdit} />
+        <PostEntry isEdit={showPostEdit} onDiscard={handleDiscard} post={post} />
       ) : (
         <article className="mt-6 card lg:mt-8">
           <PostHeader post={post} onEdit={handleOnEdit} />
-          <PostBody poster={post?.image} content={post?.content} />
+          <PostBody
+            poster={post?.image}
+            content={post?.content}
+          />
           <PostAction post={post} commentCount={post?.comments?.length} />
           <PostComments post={post} />
         </article>

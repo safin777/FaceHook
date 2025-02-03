@@ -8,11 +8,11 @@ const NewPost = () => {
   const { state } = useProfile();
   const avatar = state?.user?.avatar ?? auth?.user?.avatar;
   const [showPostEntry, setShowPostEntry] = useState(false);
-
+  
   return (
     <>
       {showPostEntry ? (
-        <PostEntry onCreate={() => setShowPostEntry(false)} />
+        <PostEntry onCreate={() => setShowPostEntry(false)}  />
       ) : (
         <div className="card">
           <div className="gap-2 mb-3 flex-center lg:gap-4">

@@ -47,6 +47,14 @@ const postReducer = (state, action) => {
       };
     }
 
+    case actions.post.POST_EDITED: {
+      return {
+        ...state,
+        loading: false,
+        posts: [action.data, ...state.posts],
+      };
+    }
+
     default: {
       return state;
     }
